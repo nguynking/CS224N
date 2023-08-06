@@ -1,0 +1,10 @@
+# Python
+__pycache__
+.ipynb_checkpoints
+
+# Assignment 1 generated
+assignment1\code\.ipynb_checkpoints
+
+# Assignment 2 generated
+assignment2\code\.DS_Store
+assignment2\code\.ipynb_checkpoints
