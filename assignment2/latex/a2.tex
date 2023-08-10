@@ -1,4 +1,4 @@
-    \documentclass{article}
+\documentclass{article}
 
 \newif\ifanswers
 \answerstrue % comment out to hide answers
@@ -187,7 +187,9 @@ Prove that the naive-softmax loss (Equation \ref{naive-softmax}) is the same as 
 Your answer should be one line. You may describe your answer in words.
 \begin{shaded}
 \begin{answer}
+Since $\bm y$ is a one-hot vector, where $\bm y_w = 1$ when $w = o$ (the outside word), and $\bm y_w = 0$ when $w \neq o$,
 
+$-\sum_{w \in \text{Vocab}} \bm y_w \log(\hat{\bm y}_w) = -[y_1\log(\hat{\bm y}_1) + \ldots + y_o\log(\hat{\bm y}_o) + \ldots + y_w\log(\hat{\bm y}_w)] = -y_o\log(\hat{\bm y}_o) = -\log(\hat{\bm y}_o)$
 \end{answer}
 \end{shaded}
 
@@ -212,7 +214,26 @@ Hint: Consider the case where $\mathbf{u}_x = \alpha\mathbf{u}_y$ for some words
 \end{enumerate}
 
 \begin{shaded}
-\begin{answer}
+\begin{answer} The partial derivative of $\bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)$ with respect to $\bm v_c$:
+\begin{align}
+\frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)}{\partial \bm v_c} &= \frac{\partial}{\partial \bm v_c} \left[-\log\left(\frac{\exp(\bm u_{o}^\top \bm v_c)}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)} \right)\right] \\
+&=\frac{\partial}{\partial \bm v_c} \left[- \left(\log\left(\exp(\bm u_{o}^\top \bm v_c)\right) - \log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)\right)\right] \\
+&=\frac{\partial}{\partial \bm v_c} \left[- \left(\bm u_{o}^\top \bm v_c - \log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)\right)\right] \\
+&=\label{simplification}\frac{\partial}{\partial \bm v_c} \left[\log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)-\bm u_{o}^\top \bm v_c\right] \\
+&=\frac{1}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\bm u_w\right) - \bm u_o \\
+&= \sum_{w \in \text{Vocab}} \frac{\exp(\bm u_{w}^\top \bm v_c)}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\bm u_w - \bm u_o \\
+&= \sum_{w \in \text{Vocab}} \hat{y}_w \bm u_w - \bm u_o \\
+&= \bm U \hat{\bm y} - \bm u_o \\
+&= \bm U (\hat{\bm y} - \bm y)
+\end{align}
+
+\hfill
+
+\color{red} Additional question answers:
+\begin{enumerate}[label=(\roman*)]
+    \item Given that $\text{Vocab}=\{\text{Sub1} \cup \text{Sub2}\}$ (where both vocabulary subsets can overlap) the gradient is $0$ whenever a probability for any word $w_{\text{sub1}}\in \text{Sub1}$ is $0$, i.e., $\hat{y}_{w_{\text{sub1}}}=0$, and none of the words $w_{\text{sub2}}\in \text{Sub2}$ are embedded, i.e., are vectors with $0$ values $\bm u_w = \bm 0$, or if \textit{softmax} perfectly classifies some word $w\in\text{Vocab}$ (with probability of $1$) which has a non-zero embedding and also happens to be the output word $w=o$.
+    \item Assuming we subtract this gradient from $\bm v_c$, we make $\bm v_c$ more desirable because we update the center word embedding in such way that the loss function is minimized (because negative partial derivative values point towards minima) and, just to recall, the loss function shows how bad the probability is that the center word and the outside words fall within the same window, i.e., how far away from each other they are.
+\end{enumerate}
 
 \end{answer}
 \end{shaded}
@@ -220,9 +241,30 @@ Hint: Consider the case where $\mathbf{u}_x = \alpha\mathbf{u}_y$ for some words
 % Question 1-C
 \item (5 points) Compute the partial derivatives of $\bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)$ with respect to each of the `outside' word vectors, $\bm u_w$'s. There will be two cases: when $w=o$, the true `outside' word vector, and $w \neq o$, for all other words. Please write your answer in terms of $\bm y$, $\hat{\bm y}$, and $\bm v_c$. In this subpart, you may use specific elements within these terms as well (such as $\bm y_1$, $\bm y_2$, $\dots$). Note that $\bm u_w$ is a vector while $\bm y_1, \bm y_2, \dots$ are scalars. Show your work to receive full credit.
 
-\begin{shaded}
-\begin{answer}
+\begin{shaded} \newpage
+\begin{answer} Let's continue from the Equation \ref{simplification}, but now with respect to each 'outside' word's vector $\bm u_w$: 
+\begin{align}
+\frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm u_w)}{\partial \bm u_w} &= \frac{\partial}{\partial \bm u_w} \left[\log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)-\bm u_{o}^\top \bm v_c\right]
+\end{align}
 
+\begin{itemize}
+    \item $\text{w} = \text{o}$:
+\end{itemize}
+
+\begin{align}
+\frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)}{\partial \bm u_w} &= \frac{\exp(\bm u_o^\top \bm v_c) \bm v_c}{\sum_{w \in \text{Vocab}} \exp(\bm u_w^\top v_c)} - \bm v_c \\
+&= \hat{y}_o \bm v_c - \bm v_c \\
+&= (\hat{y}_o - 1) \bm v_c
+\end{align}
+
+\begin{itemize}
+    \item $\text{w} \neq \text{o}$:
+\end{itemize}
+
+\begin{align}
+\frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)}{\partial \bm u_w} &= \frac{\exp(\bm u_w^\top \bm v_c) \bm v_c}{\sum_{w \in \text{Vocab}} \exp(\bm u_w^\top v_c)} \\
+&= \hat{y}_w \bm v_c
+\end{align}
 \end{answer}
 \end{shaded}
 
@@ -230,8 +272,19 @@ Hint: Consider the case where $\mathbf{u}_x = \alpha\mathbf{u}_y$ for some words
 \item (1 point) Write down the partial derivative of $\bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)$ with respect to $\bm U$. Please break down your answer in terms of the column vectors $\frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_1}$, $\frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_2}$, $\cdots$, $\frac{\partial \bm J(\bm v_c, o, \bm U)}{\partial \bm u_{|\text{Vocab}|}}$. No derivations are necessary, just an answer in the form of a matrix.
 
 \begin{shaded}
-\begin{answer}
-
+\begin{answer} We can express the partial derivative with respect to full matrix $\bm U$. Let's continue from the Equation \ref{simplification}, but now with respect to matrix $\bm U$: 
+\begin{align}
+\frac{\partial \bm J_{\text{naive-softmax}}(\bm v_c, o, \bm U)}{\partial \bm U} &= \frac{\partial}{\partial \bm U} \left[\log\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)\right)-\bm u_{o}^\top \bm v_c\right] \\
+&=\frac{1}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)}\left(\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c) \frac{\partial \bm u_w^\top \bm v_c}{\partial \bm U}\right) - \frac{\partial \bm u_o^\top \bm v_c}{\partial \bm U} \\
+&= \sum_{w \in \text{Vocab}} \frac{\exp(\bm u_{w}^\top \bm v_c)}{\sum_{w \in \text{Vocab}} \exp(\bm u_{w}^\top \bm v_c)} \frac{\partial \bm u_w^\top \bm v_c}{\partial \bm U} - \frac{\partial \bm u_o^\top \bm v_c}{\partial \bm U} \\
+&= \sum_{w \in \text{Vocab}} \hat{y}_w \frac{\partial \bm u_w^\top \bm v_c}{\partial \bm U} - \frac{\partial \bm u_o^\top \bm v_c}{\partial \bm U} \\
+&= \bm v_c \hat{\bm y}^\top - \bm v_c \bm y^\top \\
+&= \bm v_c (\hat{\bm y} - \bm y)^\top \\
+&= 
+\begin{bmatrix} 
+    \hat{y}_1 \bm v_c & \hat{y}_2 \bm v_c & \ldots & (\hat{y}_o - 1) \bm v_c & \ldots & \hat{y}_{|\text{Vocab}|} \bm v_c \\
+\end{bmatrix}
+\end{align}
 \end{answer}
 \end{shaded}
 
@@ -252,8 +305,14 @@ Hint: Consider the case where $\mathbf{u}_x = \alpha\mathbf{u}_y$ for some words
 Where $x$ is a scalar and $0<\alpha <1$, please compute the derivative of $f(x)$ with respect to $x$. You may ignore the case where the derivative is not defined at 0.\footnote{If you're interested in how to handle the derivative at this point, you can read more about the notion of \hyperref[https://en.wikipedia.org/wiki/Subderivative]{subderivatives}.}
 
 \begin{shaded}
-\begin{answer}
-
+\begin{answer} The derivative of Leaky Rectified Linear Unit (Leaky ReLU) activation function:
+\[ 
+    \frac{{d\max(\alpha x, x)}}{dx} =
+    \begin{cases}
+        \alpha \text{ if } x < 0 \\
+        1 \text{ if } x > 0
+    \end{cases}
+\]
 \end{answer}
 \end{shaded}
 
@@ -268,8 +327,15 @@ Where $x$ is a scalar and $0<\alpha <1$, please compute the derivative of $f(x)$
 Please compute the derivative of $\sigma(x)$ with respect to $x$, where $x$ is a scalar. Please write your answer in terms of $\sigma(x)$. Show your work to receive full credit.
 
 \begin{shaded}
-\begin{answer}
-
+\begin{answer} The derivative of $\sigma(x)$ with respect to $x$, where $x$ is a scalar:
+\begin{align}
+    \frac{d \sigma(x)}{dx} &= \frac{d}{dx}\left(\frac{e^x}{e^x + 1}\right) \\
+    &= \frac{e^x (e^x + 1) - e^x e^x}{(e^x + 1)^2} \\
+    &= \frac{e^x}{(e^x + 1)^2} \\
+    &= \frac{(e^x + 1) - e^x}{e^x + 1} \times \frac{e^x}{e^x + 1} \\
+    &= \left(1 - \frac{e^x}{e^x + 1}\right) \times \frac{e^x}{e^x + 1} \\
+    &= (1 - \sigma(x))\sigma(x)
+\end{align}
 \end{answer}
 \end{shaded}
 
@@ -295,7 +361,38 @@ Caveat: So far we have looked at re-using quantities and approximating softmax w
 
 \begin{shaded}
 \begin{answer}
+\begin{enumerate}[label=(\roman*)]
+    \item First, let's compute the partial derivative of $\bm J_{\text{neg-sample}}$ with respect to $\bm v_c$:
+    \begin{align}
+        \frac{\partial \bm J_{\text{neg-sample}(\bm v_c, o, \bm U)}}{\partial \bm v_c} &= \frac{\partial}{\partial \bm v_c} \left[-\log(\sigma(\bm u_o^\top \bm v_c)) - \sum_{s=1}^K \log(\sigma(-\bm u_{w_s}^\top \bm v_c))\right] \\
+        &= \frac{-(1 - \sigma(\bm u_o^\top \bm v_c))\sigma(\bm u_o^\top \bm v_c) \bm u_o}{\sigma(\bm u_o^\top \bm v_c)} + \sum_{s=1}^K \frac{(1 - \sigma(-\bm u_{w_s}^\top \bm v_c))\sigma(-\bm u_{w_s}^\top \bm v_c) \bm u_o}{\sigma(-\bm u_{w_s}^\top \bm v_c)} \\
+        &= -( 1 - \sigma(\bm u_o^\top \bm v_c) ) \bm u_o + \sum_{s=1}^{K} \left( 1 - \sigma(- \bm u_{w_s}^\top \bm v_c) \right) \bm u_{w_s}
+    \end{align}
+    \color{red}
+    The partial derivative of $\bm J_{\text{neg-sample}}$ with respect to $\bm u_o$:
+    \begin{align}
+        \frac{\partial \bm J_{\text{neg-sample}(\bm v_c, o, \bm U)}}{\partial \bm u_o} &= \frac{\partial}{\partial \bm u_o} \left[-\log(\sigma(\bm u_o^\top \bm v_c)) - \sum_{s=1}^K \log(\sigma(-\bm u_{w_s}^\top \bm v_c))\right] \\
+        &= \frac{-(1 - \sigma(\bm u_o^\top \bm v_c))\sigma(\bm u_o^\top \bm v_c) \bm v_o}{\sigma(\bm u_o^\top \bm v_c)} \\
+        &= -( 1 - \sigma(\bm u_o^\top \bm v_c) ) \bm v_c
+    \end{align}
 
+    The partial derivative of $\bm J_{\text{neg-sample}}$ with respect to $\bm u_{w_s}$:
+    \begin{align}
+        \frac{\partial \bm J_{\text{neg-sample}(\bm v_c, o, \bm U)}}{\partial \bm u_{w_s}} &= \frac{\partial}{\partial \bm u_{w_s}} \left[-\log(\sigma(\bm u_o^\top \bm v_c)) - \sum_{s=1}^K \log(\sigma(-\bm u_{w_s}^\top \bm v_c))\right] \\
+        &= \frac{(1 - \sigma(-\bm u_{w_s}^\top \bm v_c))\sigma(-\bm u_{w_s}^\top \bm v_c) \bm v_c}{\sigma(-\bm u_{w_s}^\top \bm v_c)} \\
+        &= ( 1 - \sigma(- \bm u_{w_s}^\top \bm v_c) ) \bm v_c
+    \end{align}
+
+    \item We could reuse the calculation of sigmoid and the inner product:
+    \begin{equation}
+        \frac{\partial \bm J_{\text{neg-sample}(\bm v_c, o, \bm U)}}{\partial \bm v_c} = -\bm{U}_{o, \{w_1, \dots, w_K\}} \left( \bm 1 - \sigma(\bm{U}_{o, \{w_1, \dots, w_K\}}^\top \bm v_c) \right)
+    \end{equation}
+    \begin{equation}
+        \frac{\partial \bm J_{\text{neg-sample}(\bm v_c, o, \bm U)}}{\partial \bm U} = -\frac{\bm{U}_{o, \{w_1, \dots, w_K\}}}{|\bm{U}_{o, \{w_1, \dots, w_K\}}|} \odot \bm v_c \left( \bm 1 - \sigma\left(\bm{U}_{o, \{w_1, \dots, w_K\}}^\top \bm v_c\right) \right)^\top
+    \end{equation}
+
+    \item \textbf{Negative Sampling} is much more efficient because it samples a fixed number $K$ of vocabulary words that are involved in loss computation along with the true outside word, whereas \textbf{Softmax} involves normalizing the unnormalized probability meaning it has to go through all word vectors in the vocabulary (which can have $10^6$ - $10^7$ entries).
+\end{enumerate}
 \end{answer}
 \end{shaded}
 
@@ -312,8 +409,10 @@ for a sample $w_1, \ldots w_K$, where $\sigma(\cdot)$ is the sigmoid function.
 Compute the partial derivative of $\bm J_{\text{neg-sample}}$ with respect to a negative sample $\bm u_{w_s}$. Please write your answers in terms of the vectors $\bm v_c$ and $\bm u_{w_s}$, where $s \in [1, K]$. Show your work to receive full credit. Hint: break up the sum in the loss function into two sums: a sum over all sampled words equal to $w_s$ and a sum over all sampled words not equal to $w_s$. Notation-wise, you may write `equal' and `not equal' conditions below the summation symbols, such as in Equation \ref{skip-gram}.
 
 \begin{shaded}
-\begin{answer}
-
+\begin{answer} The partial derivative of the $\bm J_{\text{neg-sample}}(\bm v_c, o, \bm U)$ without the assumption that the $K$ sampled words are distinct:
+\begin{align}
+    \frac{\partial \bm J_{\text{neg-sample}}(\bm v_c, o, \bm U)}{\partial \bm u_{w_s}} = \sum_{\substack{w\in\text{Vocab} \\ w=w_s}}^K \left( 1 - \sigma(-\bm u_{w}^\top \bm v_c) \right) \bm v_c
+\end{align}
 \end{answer}
 \end{shaded}
 
@@ -336,7 +435,11 @@ Write your answers in terms of ${\frac{\partial \bm J(\bm v_c, w_{t+j}, \bm U)}{
 
 \begin{shaded}
 \begin{answer}
-
+\begin{enumerate}[label=(\roman*)]
+    \item $\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm U} = \sum_{\substack{-m\le j \le m \\ j\ne 0}} \frac{\partial \bm J(\bm v_c, w_{t+j}, \bm U)}{\partial \bm U}$
+    \item $\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm v_c} = \sum_{\substack{-m\le j \le m \\ j\ne 0}} \frac{\partial \bm J(\bm v_c, w_{t+j}, \bm v_c)}{\partial \bm v_c}$
+    \item $\frac{\partial \bm J_{\textrm{skip-gram}}(\bm v_c, w_{t-m},\ldots w_{t+m}, \bm U)} {\partial \bm v_w} = \bm 0$ when $w \ne c$
+\end{enumerate}
 \end{answer}
 \end{shaded}
 
@@ -386,6 +489,17 @@ Note: If you are using Windows and have trouble running the .sh scripts used in 
     
 \begin{shaded}
 \begin{answer}
+
+\begin{minipage}[h]{\linewidth}
+    \begin{center}
+   \vspace{-2ex}
+   \includegraphics[width=0.45\textwidth]{word_vectors.png}
+   \captionof{figure}{\color{red} A visualization for the word vectors in 2D space after training the skip-gram model on the Stanford Sentiment Treebank (SST) dataset}
+   \label{fig:word_vectors}
+   \end{center}
+\end{minipage} 
+
+\color{red} {Figure \ref{fig:word_vectors} shows that after training, there exists some good clusters, such as words commonly used to describe things or events like "great", "amazing", "wonderful" are closed to each other, another cluster contains words that usually go together like "man" and "woman", "tea" and "coffee",... It is also nice to see that antonyms like "enjoyable" and "annoying", "boring" and "great" are not too far away from each other. However, there exists outlier like "hail", and some words must be closer to each other because of the high frequency of appearing together like "male" and "female", "king" and "queen"...}
 
 \end{answer}
 \end{shaded}

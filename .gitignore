@@ -6,5 +6,24 @@ __pycache__
 assignment1\code\.ipynb_checkpoints
 
 # Assignment 2 generated
+assignment2\code\utils\__pycache__
+assignment2\code\__pycache__
 assignment2\code\.DS_Store
 assignment2\code\.ipynb_checkpoints
+assignment2\code\assignment2.zip
+assignment2\code\saved_params_10000.npy
+assignment2\code\saved_params_15000.npy
+assignment2\code\saved_params_20000.npy
+assignment2\code\saved_params_25000.npy
+assignment2\code\saved_params_30000.npy
+assignment2\code\saved_params_35000.npy
+assignment2\code\saved_params_40000.npy
+assignment2\code\saved_params_5000.npy
+assignment2\code\saved_state_10000.pickle
+assignment2\code\saved_state_15000.pickle
+assignment2\code\saved_state_20000.pickle
+assignment2\code\saved_state_15000.pickle
+assignment2\code\saved_state_30000.pickle
+assignment2\code\saved_state_35000.pickle
+assignment2\code\saved_state_40000.pickle
+assignment2\code\saved_state_5000.pickle
