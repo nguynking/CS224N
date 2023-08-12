@@ -38,8 +38,9 @@ For every assignment, i.e., for directories `assigment1` through `assignment5`, 
 
 ### Assignments
 
-* [A1](a1): Exploring Word Vectors (_In Progress_)
-* [A2](a2): word2vec (_In Progress_)
+* [A1](assignment1): Exploring Word Vectors (_In Progress_)
+* [A2](assignment2): word2vec (_Done_)
+* [A3](assignment3): Dependency Parsing (_In Progress_)
 
 <br>
 
