@@ -33,9 +33,26 @@ On each step, your parser will decide among the three transitions using a neural
     $[$ROOT, attended] & [lectures, in, the, NLP, class] & attended$\to$I &  \texttt{LEFT-ARC}  \\
     \end{tabular}\newline
 
+    \ifans{ \newline
+    \begin{tabular}{ l | l | l | l}
+    Stack & Buffer & New dependency & Transition \\ \hline
+    $[$ROOT, attended, lectures] & [in, the, NLP, class] &  &  \texttt{SHIFT}  \\
+    $[$ROOT, attended] & [in, the, NLP, class] & attended $\to$ lectures  &  \texttt{RIGHT-ARC}  \\
+    $[$ROOT, attended, in] & [the, NLP, class] & &  \texttt{SHIFT}  \\
+    $[$ROOT, attended, in, the] & [NLP, class] & &  \texttt{SHIFT}  \\
+    $[$ROOT, attended, in, the, NLP] & [class] & &  \texttt{SHIFT}  \\
+    $[$ROOT, attended, in, the, NLP, class] & [] & &  \texttt{SHIFT}  \\
+    $[$ROOT, attended, in, the, class] & [] & class $\to$ NLP &  \texttt{LEFT-ARC}  \\
+    $[$ROOT, attended, in, class] & [] & class $\to$ the &  \texttt{LEFT-ARC}  \\
+    $[$ROOT, attended, class] & [] & class $\to$ in &  \texttt{LEFT-ARC}  \\
+    $[$ROOT, attended] & [] & attended $\to$ class &  \texttt{RIGHT-ARC}  \\
+    $[$ROOT] & [] & ROOT $\to$ attended &  \texttt{RIGHT-ARC}  \\
+    \end{tabular}\newline
+    }
     
-    \part[2] A sentence containing $n$ words will be parsed in how many steps (in terms of $n$)? Briefly explain in 1--2 sentences why.
+    \part[2] A sentence containing $n$ words will be parsed in how many steps (in terms of $n$)? Briefly explain in 1--2 sentences why. \newline
 
+    \ifans{A sentence containing $n$ words will be parsed in $2n$ steps because the dependency parser is linear in time. In other words, it works with pairs of words and it does not support nested dependencies, thus it will take $n$ steps for all the \texttt{SHIFT} operations and another $n$ steps for \texttt{LEFT-ARC} and \texttt{RIGHT-ARC} operations.} \newline
        
     
     \part[6] Implement the \texttt{\_\_init\_\_} and \texttt{parse\_step} functions in the \texttt{PartialParse} class in \texttt{parser\_transitions.py}. This implements the transition mechanics your parser will use. You can run basic (non-exhaustive) tests by running \texttt{python parser\_transitions.py part\_c}.
@@ -127,6 +144,12 @@ On each step, your parser will decide among the three transitions using a neural
             \item Working implementation of the functions for training in \texttt{run.py}. (We'll look at and run this code for grading).
             \item \textbf{Report the best UAS your model achieves on the dev set and the UAS it achieves on the test set in your writeup}.
     \end{itemize}
+
+    \ifans{\begin{tabular}{ l | l }
+    dev UAS & test UAS \\ \hline
+    88.33 & 88.76 \\
+    \end{tabular}
+    }\newline
     
 \part[12] We'd like to look at example dependency parses and understand where parsers like ours might be wrong. For example, in this sentence:
 
@@ -195,7 +218,39 @@ In particular, you \textbf{do not} need to look at the labels on the the depende
 
 \input{dep_parses.tex}
 
+\ifans{
 
-\part[2] Recall in part (e), the parser uses features which includes words and their part-of-speech (POS) tags. Explain the benefit of using part-of-speech tags as features in the parser?
+i. "The university blocked the acquisition, citing concerns about the risks involved."
+\begin{itemize}
+    \item \textbf{Error type}: Verb Phrase Attachment Error
+    \item \textbf{Incorrect dependency}: acquisition $\rightarrow$ citing 
+    \item \textbf{Correct dependency}: blocked $\rightarrow$ citing
+\end{itemize}
+
+ii. "Many managers and traders had already left their offices early Friday afternoon."
+\begin{itemize}
+    \item \textbf{Error type}: Modifier Phrase Attachment Error 
+    \item \textbf{Incorrect dependency}: left $\rightarrow$ early 
+    \item \textbf{Correct dependency}: Friday $\rightarrow$ early
+\end{itemize}
+
+iii. "Investment Canada declined to comment on the reasons for the government decision."
+\begin{itemize}
+    \item \textbf{Error type}: Prepositional Phrase Attachment Error 
+    \item \textbf{Incorrect dependency}: declined $\rightarrow$ decision
+    \item \textbf{Correct dependency}: reasons $\rightarrow$ decision
+\end{itemize}
+
+iv. "People benefit from a separate move that affects three US car plants and one in Quebec"
+\begin{itemize}
+    \item \textbf{Error type}: Coordination Attachment Error 
+    \item \textbf{Incorrect dependency}: affects $\rightarrow$ one 
+    \item \textbf{Correct dependency}: plants $\rightarrow$ one
+\end{itemize}
+} 
+
+\part[2] Recall in part (e), the parser uses features which includes words and their part-of-speech (POS) tags. Explain the benefit of using part-of-speech tags as features in the parser? 
+
+\ifans{Part-of-speech (POS) tags are useful features in parsers because they provide information about the grammatical function of words in a sentence. This information can be use to disambiguate between possible parses, and to make more accurate predictions about the structure of a sentence.}
 
 \end{parts}
