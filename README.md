@@ -38,9 +38,10 @@ For every assignment, i.e., for directories `assigment1` through `assignment5`, 
 
 ### Assignments
 
-* [A1](assignment1): Exploring Word Vectors (_In Progress_)
+* [A1](assignment1): Exploring Word Vectors (_Done_)
 * [A2](assignment2): word2vec (_Done_)
 * [A3](assignment3): Dependency Parsing (_Done_)
+* [A4](assignment4): Neural Machine Translation with RNNs and Analyzing NMT Systems (_Done_)
 
 <br>
 
