@@ -19,3 +19,16 @@ assignment2/code/word_vectors.png
 # Assignment 3 generated
 assignment3/code/results
 assignment3/code/assignment3.zip
+
+# Assignment 4 generated
+# Assignment 4 generated
+assignment4/code/src.model
+assignment4/code/src.vocab
+assignment4/code/tgt.model
+assignment4/code/tgt.vocab
+assignment4/code/vocab.json
+assignment4/code/model.bin
+assignment4/code/model.bin.optim
+assignment4/code/runs
+assignment4/code/outputs/test_outputs.txt
+assignment4/code/assignment4.zip
