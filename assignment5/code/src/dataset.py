@@ -168,7 +168,41 @@ class CharCorruptionDataset(Dataset):
 
     def __getitem__(self, idx):
         # TODO [part e]: see spec above
-        raise NotImplementedError
+
+        # # Use the idx argument of __getitem__ to retrieve the element of self.data at the given index.
+        # # We'll call the resulting data entry a document.
+        document = self.data[idx]
+
+        # Randomly truncate the document to a length no less than 4 characters,
+        # and no more than int(self.block_size*7/8) characters.
+        truncated_len = random.randint(4, int(self.block_size * 7/8))
+        truncated_document = document[:truncated_len]
+
+        #  Now, break the (truncated) document into three substrings:
+        #       [prefix] [masked_content] [suffix]
+        masked_content_len = max(0, int(random.gauss(1/4 * truncated_len, 1)))
+        prefix_len = int((truncated_len - masked_content_len) / 2)
+        prefix = truncated_document[:prefix_len]
+        masked_content = truncated_document[prefix_len:prefix_len + masked_content_len]
+        suffix = truncated_document[prefix_len + masked_content_len:]
+
+        # Rearrange these substrings into the following form:
+        #   [prefix] MASK_CHAR [suffix] MASK_CHAR [masked_content] [pads]
+        masked_string = prefix + self.MASK_CHAR + suffix + self.MASK_CHAR + masked_content
+        pads_len = self.block_size - len(masked_string) + 1
+        pads = self.PAD_CHAR * pads_len
+        masked_string += pads
+
+        # We now use masked_string to construct the input and output example pair
+        inp = masked_string[:-1]
+        out = masked_string[1:]
+
+        # Making use of the vocabulary that you defined, encode the resulting input
+        # and output strings as Long tensors and return the resulting data point.
+        x = torch.tensor([self.stoi[ch] for ch in inp], dtype=torch.long)
+        y = torch.tensor([self.stoi[ch] for ch in out], dtype=torch.long)
+
+        return x, y
 
 """
 Code under here is strictly for your debugging purposes; feel free to modify

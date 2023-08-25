@@ -21,16 +21,18 @@ Observe that the output $c\in\mathbb{R}^d$ is an average over the value vectors 
 \begin{subparts}
     \subpart[1] \textbf{Explain} why $\alpha$ can be interpreted as a categorical probability distribution. 
     
-    \ifans{}
+    \ifans{There are $n$ $\alpha$ scores - one for each value in a sequence. Each score is between $0$ and $1$ and it can be interpreted as probability for a category. It is a probability distribution because all scores are normalized (via softmax), i.e., they sum up to 1.}
+    
     \subpart[2] The distribution $\alpha$ is typically relatively ``diffuse''; the probability mass is spread out between many different $\alpha_i$. However, this is not always the case. \textbf{Describe} (in one sentence) under what conditions the categorical distribution $\alpha$ puts almost all of its weight on some $\alpha_j$, where $j \in \{1, \ldots, n\}$ (i.e. $\alpha_j \gg \sum_{i \neq j} \alpha_i$). What must be true about the query $q$ and/or the keys $\{k_1,\dots,k_n\}$?
     
-    \ifans{
+    \ifans{The categorical distribution $\alpha$ puts almost all of its weight on some $\alpha_j$ (i.e. $\alpha_j \gg \sum_{i \neq j} \alpha_i$) if the dot product of the key $k_j$ and the query $q$ gives much higher value than the other dot product. This means the key $k_j$ is much closer to the query $q$ in the $d$-dimension than other keys.
     }
     \subpart[1] Under the conditions you gave in (ii),  \textbf{describe} the output $c$. 
     
-    \ifans{}
+    \ifans{The output $c$ now will almost be a copy of the value $v_j$ due to the fact that $\alpha_j \gg \sum_{i \neq j} \alpha_i$, i.e., $c \approx v_j$.}
+    
     \subpart[1] \textbf{Explain} (in two sentences or fewer) what your answer to (ii) and (iii) means intuitively. \\
-\ifans{}
+    \ifans{If the dot product between some $j_{th}$ words' \textit{key} and \textit{query} is very large compared to other words' \textit{keys} and the same \textit{query}, then the \textit{attention output} for that $j_{th}$ word will approach its value. It's as if the \textit{value} is "copied" to the output.}
 
 \end{subparts}
 
@@ -52,14 +54,36 @@ Using the basis vectors $\{a_1, a_2, \ldots, a_m\}$, construct a matrix $M$ such
 
 \textbf{Hint:} Given that the vectors $\{a_1, a_2, \ldots, a_m\}$ are both \textit{orthogonal} and \textit{form a basis} for $v_a$, we know that there exist some $c_1, c_2, \ldots, c_m$ such that $v_a = c_1 a_1 + c_2 a_2 + \cdots + c_m a_m$. Can you create a vector of these weights $c$? 
 
-\ifans{}
+\ifans{Assume that $\bA$ is a matrix of concatenated basis vectors $\{\ba_1, \ldots, \ba_m\}$ and $\bB$ is a matrix of concatenated basis vectors $\{\bb_1, \ldots, \bb_p\}$. Linear combinations of vectors $\bv_a$ and $\bv_b$ can then be expressed as:
+    $$\bv_a = c_1\ba_1 + c_2\ba_2 + \ldots + c_m\ba_m = \bA \bc$$
+    $$\bv_b = d_1\bb_1 + d_2\bb_2 + \ldots + d_m\bb_m = \bB \bd$$
+We have to construct a matrix $\bM$ such that when multiplied with $\bv_b$, produces $\b0$ and multiplied with $\bv_a$, produces the same vector (in terms of its own space):
+    $$\bM \bs = \bv_a$$
+    $$\bM (\bv_a + \bv_b) = \bv_a$$
+    $$\bM \bv_a + \bM \bv_b = \bv_a$$
+It is easy to see that, since $\ba_j^T \bb_k = 0$ for all $j, k$ (two subspaces $\bA$ and $\bB$ are orthogonal to each other), $\bA^T \bB = \mathbf{0}$. Also, since $\ba_i^T \ba_j = 0$ for $i \neq j$ and $\ba_i^T \ba_j = 1$ whenever $i = j$ (all basis vectors have norm $1$ and are orthogonal to each other), $\bA^T \bA = \bI$. If we substitute $\bM$ with $\bA^T$, $\bv_a$ with $\bA \bc$ and $\bv_b$ with $\bB \bd$:
+    $$\bA^T \bA \bc + \bA^T \bB \bd = \bI \bc + \mathbf{0} \bd = \bc$$
+We know that in terms of $\R^d$ (not in terms of $\bA$ or $\bB$), $\bv_a$ is just a collection of $\bc$ (or we can think of $\bv_a$ as $\bc$ expressed as a vector in $\R^d$). Thus, $\bM = \bA^T$}
 
 \subpart[4] As before, let $v_a$ and $v_b$ be two value vectors corresponding to key vectors $k_a$ and $k_b$, respectively.
 Assume that (1) all key vectors are orthogonal, so $k_i^\top k_j = 0$ for all $i \neq j$; and (2) all key vectors have norm $1$.\footnote{Recall that a vector $x$ has norm 1 iff $x^\top x = 1$.}
 \textbf{Find an expression} for a query vector $q$ such that $c \approx \frac{1}{2}(v_a + v_b)$, and justify your answer. \footnote{Hint: while the softmax function will never \textit{exactly} average the two vectors, you can get close by using a large scalar multiple in the expression.} 
 
+\ifans{
+Assume that $\mathbf{c}$ is approximated as follows: 
+    $$\mathbf{c} \approx 0.5\mathbf{v}_a + 0.5\mathbf{v}_b$$
+This means that $\alpha_a \approx 0.5$ and $\alpha_b \approx 0.5$, which can be achieved when (whenever $i \neq a$ and $i \neq b$):
+    $$\mathbf{k}_a^\top \mathbf{q} \approx \mathbf{k}_b^\top \mathbf{q} \gg \mathbf{k}_i^\top \mathbf{q}$$
+Like explained in the previous question, if the dot product is big, the probability mass will also be big and we want a balanced mass between $\alpha_a$ and $\alpha_b$. $\mathbf{q}$ will be largest for $\mathbf{k}_a$ and $\mathbf{k}_b$ when it is a large multiplicative of a vector that contains a component in $\mathbf{k}_a$ direction and in $\mathbf{k}_b$ direction:
+    $$\mathbf{q} = \beta(\mathbf{k}_a + \mathbf{k}_b), \quad \text{where } \beta \gg 0$$
+Now, since the keys are orthogonal to each other, it is easy to see that:
+    $$\mathbf{k}_a^\top \mathbf{q} = \beta \mathbf{k}_a^\top \mathbf{k}_a + \beta \mathbf{k}_a^\top \mathbf{k}_b = \beta \times 1 + \beta \times 0 = \beta$$
+    $$\mathbf{k}_b^\top \mathbf{q} = \beta \mathbf{k}_b^\top \mathbf{k}_a + \beta \mathbf{k}_b^\top \mathbf{k}_b = \beta \times 0 + \beta \times 1 = \beta$$
+    $$\mathbf{k}_i^\top \mathbf{q} = \beta \mathbf{k}_i^\top \mathbf{k}_a + \beta \mathbf{k}_i^\top \mathbf{k}_b = \beta \times 0 + \beta \times 0 = 0$$
+Thus when we exponentiate, only $\exp(\beta)$ will be matter, because $\exp(0) = 1$ will be insignificant to the probability mass. We get that:
+    $$\alpha_a = \alpha_b = \frac{\exp(\beta)}{n - 2 + 2\exp(\beta)} \approx \frac{\exp(\beta)}{2\exp(\beta)} \approx \frac{1}{2}, \quad \text{for } \beta \gg 0$$
+}
 
-\ifans{}
 \end{subparts}
 
 \part[5]\textbf{Drawbacks of single-headed attention:} \label{q_problem_with_single_head}
@@ -73,8 +97,11 @@ Further, assume that the means $\mu_i$ are all perpendicular; $\mu_i^\top \mu_j 
 \subpart[2] Assume that the covariance matrices are $\Sigma_i = \alpha I, \forall i \in \{1, 2, \ldots, n\}$, for vanishingly small $\alpha$.
 Design a query $q$ in terms of the $\mu_i$ such that as before, $c\approx \frac{1}{2}(v_a + v_b)$, and provide a brief argument as to why it works.
 
-\ifans{}
-
+\ifans{Since the variances (diagonal covariance values) for $i \in \{1, 2, \ldots, n\}$ are vanishingly small, we can assume each key vector will be close to its mean vector:
+    $$\mathbf{k}_i \approx \mu_i$$
+Because all the mean vectors are perpendicular, the problem reduces to the previous case when all keys were perpendicular to each other. $\mathbf{q}$ can now be expressed as:
+    $$\mathbf{q} = \beta(\mu_a + \mu_b), \quad \text{where } \beta \gg 0$$
+}
 \subpart[3] Though single-headed attention is resistant to small perturbations in the keys, some types of larger perturbations may pose a bigger issue. Specifically, in some cases, one key vector $k_a$ may be larger or smaller in norm than the others, while still pointing in the same direction as $\mu_a$. As an example, let us consider a covariance for item $a$ as $\Sigma_a = \alpha I + \frac{1}{2}(\mu_a\mu_a^\top)$ for vanishingly small $\alpha$ (as shown in figure \ref{ka_plausible}). This causes $k_a$ to point in roughly the same direction as $\mu_a$, but with large variances in magnitude. Further, let $\Sigma_i = \alpha I$ for all $i \neq a$. %
 \begin{figure}[h]
 \centering
@@ -86,7 +113,23 @@ Design a query $q$ in terms of the $\mu_i$ such that as before, $c\approx \frac{
 
 When you sample $\{k_1,\dots,k_n\}$ multiple times, and use the $q$ vector that you defined in part i., what do you expect the vector $c$ will look like qualitatively for different samples? Think about how it differs from part (i) and how $c$'s variance would be affected.
 
-\ifans{}
+\ifans{
+Since $\mu_i^\top \mu_i = 1$, $\mathbf{k}_a$ varies between $(\alpha + 0.5) \mu_a$ and $(\alpha + 1.5) \mu_a$. All other $\mathbf{k}_i$, whenever $i \neq a$, almost don't vary at all. Noting that $\alpha$ is vanishingly small:
+    $$\mathbf{k}_a \approx \gamma\mu_a, \quad \text{where } \gamma \sim \mathcal{N}(1, 0.5)$$
+    $$\mathbf{k}_i \approx \mu_i, \quad \text{whenever } i \neq a$$
+Since $\mathbf{q}$ is most similar in directions $\mathbf{k}_a$ and $\mathbf{k}_b$, we can assume that the dot product between $\mathbf{q}$ and any other key vector is 0 (since all key vectors are orthogonal). Thus there are 2 cases to consider (note that means are normalized and orthogonal to each other):
+    $$\mathbf{k}_a^\top \mathbf{q} \approx \gamma \mu_a^\top \beta(\mu_a + \mu_b) \approx \gamma\beta, \quad \text{where } \beta \gg 0$$
+    $$\mathbf{k}_b^\top \mathbf{q} \approx \mu_b^\top \beta(\mu_a + \mu_b) \approx \beta, \quad \text{where } \beta \gg 0$$
+We can now directly solve for coefficients $\alpha_a$ and $\alpha_b$, remembering that for large $\beta$ values $\exp(0) = 1$ are significant (note how $\frac{\exp(a)}{\exp(a) + \exp(b)} = \frac{\exp(a)}{\exp(a) + \exp(b)} \frac{\exp(-a)}{\exp(-a)} = \frac{1}{1 + \exp(b - a)}$):
+    $$\alpha_a \approx \frac{\exp(\gamma \beta)}{\exp(\gamma \beta) + \exp(\beta)} \approx \frac{1}{1 + \exp(\beta (1 - \gamma))}$$
+    $$\alpha_b \approx \frac{\exp(\beta)}{\exp(\gamma \beta) + \exp(\beta)} \approx \frac{1}{1 + \exp(\beta (\gamma - 1))}$$
+Since $\gamma$ varies between 0.5 and 1.5, and since $\beta \gg 0$, we have that:
+    $$\alpha_a \approx \frac{1}{1 + \infty} \approx 0; \quad \alpha_b \approx \frac{1}{1 + 0} \approx 1; \quad \text{when } \gamma = 0.5$$
+    $$\alpha_a \approx \frac{1}{1 + 0} \approx 1; \quad \alpha_b \approx \frac{1}{1 + \infty} \approx 0; \quad \text{when } \gamma = 1.5$$
+Since $\mathbf{c} \approx \alpha_a \mathbf{v}_a + \alpha_b \mathbf{v}_b$ because other terms are insignificant when $\beta$ is large, we can see that $\mathbf{c}$ oscillates between $\mathbf{v}_a$ and $\mathbf{v}_b$:
+    $$\mathbf{c} \approx \mathbf{v}_b, \quad \text{when } \gamma \rightarrow 0.5; \quad \mathbf{c} \approx \mathbf{v}_a, \quad \text{when } \gamma \rightarrow 0.5$$
+}
+
 \end{subparts}
 
 \part[3] \textbf{Benefits of multi-headed attention:}
@@ -101,23 +144,38 @@ Assume that the covariance matrices are $\Sigma_i=\alpha I$, for vanishingly sma
 Design $q_1$ and $q_2$ such that $c$ is approximately equal to $\frac{1}{2}(v_a+v_b)$. 
 Note that $q_1$ and $q_2$ should have different expressions.
 
-\ifans{}
+\ifans{With the same assumptions as before, we can design $\mathbf{q}_1$ and $\mathbf{q}_2$ such that one of them copies $\mathbf{v}_a$ and the other copies $\mathbf{v}_b$. Since all keys are similar to their means and following the explanation in above question, we express the queries as:
+    $$\mathbf{q}_1 = \beta \mu_a, \quad \mathbf{q}_2 = \beta \mu_b, \quad \text{for } \beta \gg 0$$
+This gives us (since means are orthogonal):
+    $$\mathbf{c}_1 \approx \mathbf{v}_a; \quad \mathbf{c}_2 \approx \mathbf{v}_b$$
+And since multi-headed attention is just an average of the 2 values, we can see that:
+    $$\mathbf{c} \approx \frac{1}{2}(\mathbf{v}_a + \mathbf{v}_b)$$
+Note extra answers:
+\begin{enumerate}
+    \item It is also possible to set $\mathbf{q}_1$ to $\beta\mu_b$ and $\mathbf{q}_2$ to $\beta\mu_a$ which would yield the same answer, just that $\mathbf{v}_a$ and $\mathbf{v}_b$ would be swapped, i.e., $\mathbf{c}_1 \approx \mathbf{v}_b$ and $\mathbf{c}_2 \approx \mathbf{v}_a$.
+    \item It is even possible to use the same query designed in the previous question which would be the same for both queries in this question, i.e., $\mathbf{q}_1 = \mathbf{q}_2 = \beta(\mathbf{v}_a + \mathbf{v}_b)$. Then $\mathbf{c}_1 = \mathbf{c}_2 = \mathbf{c}$, i.e., an average of equal averages are the same average.
+\end{enumerate}
+}
 
 \subpart[2]
 Assume that the covariance matrices are $\Sigma_a=\alpha I + \frac{1}{2}(\mu_a\mu_a^\top)$ for vanishingly small $\alpha$, and $\Sigma_i=\alpha I$  for all $i \neq a$.
 Take the query vectors $q_1$ and $q_2$ that you designed in part i.
 What, qualitatively, do you expect the output $c$ to look like across different samples of the key vectors? Explain briefly in terms of variance in $c_1$ and $c2$. You can ignore cases in which $k_a^\top q_i < 0$. 
 
-\ifans{}
-
-
-
+\ifans{With regards to question \textbf{(c) ii.}, if we choose $\mathbf{q}_1 = \beta \mu_a$ and $\mathbf{q}_2 = \beta\mu_b$, we get that (note that all other key-query dot products will be insignificant):
+    $$\mathbf{k}_a^\top \mathbf{q} \approx \gamma \mu_a^\top \beta\mu_a \approx \gamma\beta, \quad \text{where } \beta \gg 0$$
+    $$\mathbf{k}_b^\top \mathbf{q} \approx \mu_b^\top \beta\mu_b \approx \beta, \quad \text{where } \beta \gg 0$$
+We can solve for $\alpha$ values (again, note that all other key-query dot products will be insignificant when $\beta$ is large):
+    $$\alpha_{a1} \approx \frac{\exp(\gamma\beta)}{\exp(\gamma\beta)} \approx 1, \quad \alpha_{b2} \approx \frac{\exp(\beta)}{\exp(\beta)} \approx 1$$
+Since we can say that $\alpha_{i1} \approx 0$ for all $i \neq a$ and $\alpha_{i2} \approx 0$ for all $i \neq b$, it is easy to see that:
+    $$\mathbf{c}_1 \approx \mathbf{v}_a, \quad \mathbf{c}_2 \approx \mathbf{v}_b$$
+Which means that the final output will always approximately be an average of the values:
+    $$\mathbf{c} \approx \frac{1}{2} (\mathbf{v}_a + \mathbf{v}_b)$$
+Extra answers:
+\begin{enumerate}
+    \item Now if we choose $\mathbf{q}_1 = \beta\mu_b$ and $\mathbf{q}_2 = \beta\mu_a$, a similar conclusion should be shown, just that the outputs would swap places, i.e., $\mathbf{c}_1 \approx \mathbf{v}_b$ and $\mathbf{c}_2 \approx \mathbf{v}_a$.
+    \item If we choose $\mathbf{q}_1 = \mathbf{q}_2 = \beta(\mathbf{v}_a + \mathbf{v}_b)$ then the problem should be similar to question \textbf{(c) ii.} as it is easy to show that, when $\gamma \rightarrow 0.5$, then $\alpha_{a1} = \alpha_{a2} \approx 0$ and  $\alpha_{b1} = \alpha_{b2} \approx 1$, and when $\gamma \rightarrow 1.5$, then $\alpha_{a1} = \alpha_{a2} \approx 1$ and  $\alpha_{b1} = \alpha_{b2} \approx 0$. Then it is clear that $\mathbf{c}$ will approach $\frac{1}{2}(\mathbf{v}_a + \mathbf{v}_b)$ when $\gamma \rightarrow 1$ (i.e., when $\mathbf{k}_a$ is close to its mean $\mu_a$).
+\end{enumerate}
+}
 \end{subparts}
-
-
-
-
-
-
-
 \end{parts}

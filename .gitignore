@@ -21,7 +21,6 @@ assignment3/code/results
 assignment3/code/assignment3.zip
 
 # Assignment 4 generated
-# Assignment 4 generated
 assignment4/code/src.model
 assignment4/code/src.vocab
 assignment4/code/tgt.model
@@ -32,3 +31,18 @@ assignment4/code/model.bin.optim
 assignment4/code/runs
 assignment4/code/outputs/test_outputs.txt
 assignment4/code/assignment4.zip
+
+# Assignment 5 generated
+assignment5/code/vanilla.model.params
+assignment5/code/vanilla.nopretrain.dev.predictions
+assignment5/code/vanilla.nopretrain.test.predictions
+assignment5/code/vanilla.pretrain.params
+assignment5/code/vanilla.finetune.params
+assignment5/code/vanilla.pretrain.dev.predictions
+assignment5/code/vanilla.pretrain.test.predictions
+assignment5/code/synthesizer.pretrain.params
+assignment5/code/synthesizer.finetune.params
+assignment5/code/synthesizer.pretrain.dev.predictions
+assignment5/code/synthesizer.pretrain.test.predictions
+assignment5/code/assignment5_submission.zip
+assignment5/.ipynb_checkpoints
