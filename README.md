@@ -5,7 +5,7 @@
 
 ### Overview
 
-These are my solutions for the **CS224N** course assignments offered by _Stanford University_ (Winter 2023). Written questions are explained in detail, the code is brief and commented. These solutions are heavily insprired by [mantasu's repo](https://github.com/mantasu/cs224n/tree/main) and [floriankark's repo](https://github.com/floriankark/cs224n-win2223/tree/main).
+These are my solutions for the **CS224N** course assignments offered by _Stanford University_ (Winter 2023). Written questions are explained in detail, the code is brief and commented. These solutions are heavily inspired by [mantasu's repo](https://github.com/mantasu/cs224n/tree/main) and [floriankark's repo](https://github.com/floriankark/cs224n-win2223/tree/main).
 
 ### Main sources (official)
 * [**Course page**](http://web.stanford.edu/class/cs224n/index.html)
