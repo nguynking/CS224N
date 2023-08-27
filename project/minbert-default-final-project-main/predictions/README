@@ -1,0 +1,2 @@
+This is where your predictions in the test splits will be saved to.
+Before running make_submission.sh, make sure that this directory has been populated!
