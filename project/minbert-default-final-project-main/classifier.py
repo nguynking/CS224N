@@ -37,7 +37,7 @@ class BertSentimentClassifier(torch.nn.Module):
         self.num_labels = config.num_labels
         self.bert = BertModel.from_pretrained('bert-base-uncased')
 
-        # Pretrain mode does not require updating bert paramters.
+        # Pretrain mode does not require updating bert parameters.
         for param in self.bert.parameters():
             if config.option == 'pretrain':
                 param.requires_grad = False
@@ -45,7 +45,9 @@ class BertSentimentClassifier(torch.nn.Module):
                 param.requires_grad = True
 
         ### TODO
-        raise NotImplementedError
+        self.proj = nn.Linear(config.hidden_size, self.num_labels)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        # raise NotImplementedError
 
 
     def forward(self, input_ids, attention_mask):
@@ -54,7 +56,10 @@ class BertSentimentClassifier(torch.nn.Module):
         # HINT: you should consider what is the appropriate output to return given that
         # the training loop currently uses F.cross_entropy as the loss function.
         ### TODO
-        raise NotImplementedError
+        pooler = self.bert(input_ids, attention_mask)['pooler_output']
+        outputs = self.dropout(pooler)
+        logits = self.proj(outputs)
+        return logits
 
 
 
