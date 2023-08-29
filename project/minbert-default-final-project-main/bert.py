@@ -38,7 +38,7 @@ class BertSelfAttention(nn.Module):
     # each attention is calculated following eq (1) of https://arxiv.org/pdf/1706.03762.pdf
     # attention scores are calculated by multiply query and key 
     # and get back a score matrix S of [bs, num_attention_heads, seq_len, seq_len]
-    # S[*, i, j, k] represents the (unnormalized)attention score between the j-th and k-th token, given by i-th attention head
+    # S[*, i, j, k] represents the (unnormalized) attention score between the j-th and k-th token, given by i-th attention head
     # before normalizing the scores, use the attention mask to mask out the padding token scores
     # Note again: in the attention_mask non-padding tokens with 0 and padding tokens with a large negative number 
 
@@ -47,7 +47,31 @@ class BertSelfAttention(nn.Module):
     # next, we need to concat multi-heads and recover the original shape [bs, seq_len, num_attention_heads * attention_head_size = hidden_size]
 
     ### TODO
-    raise NotImplementedError
+
+    # key, query, value = (bs, num_attention_heads, seq_len, attention_head_size)
+    bs, num_attention_heads, seq_len, attention_head_size = key.size()
+
+    # compute the unnormalized attention scores softmax((Q @ K.T) / sqrt(d_k))
+    S = (query @ key.transpose(-2, -1)) / torch.sqrt(self.attention_head_size) # (bs, num_attention_heads, seq_len, seq_len)
+    
+    # mask out the padding token scores by simply add attention_mask to S
+    S = S + attention_mask
+
+    # normalize the attention scores S along the last dimension
+    S = F.softmax(S, dim=-1)
+
+    # multiply the attention scores to the value
+    V = S @ value # (bs, num_attention_heads, seq_len, attention_head_size)
+    
+    # concat multi-heads and recover the original shape
+    # we use contiguous() to rearrange the memory allocation so that the tensor is C contiguous
+    # then we can use view() to concat multi-heads
+    # contiguous(): https://stackoverflow.com/questions/48915810/what-does-contiguous-do-in-pytorch
+    # view(): https://stackoverflow.com/questions/42479902/what-does-view-do-in-pytorch
+    # Pytorch internals: http://blog.ezyang.com/2019/05/pytorch-internals/
+    attn_value = V.transpose(1, 2).contiguous().view(bs, seq_len, self.all_head_size) # (bs, seq_len, num_attention_heads, attention_head_size)
+    
+    return attn_value
 
 
   def forward(self, hidden_states, attention_mask):
