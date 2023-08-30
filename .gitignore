@@ -46,3 +46,7 @@ assignment5/code/synthesizer.pretrain.dev.predictions
 assignment5/code/synthesizer.pretrain.test.predictions
 assignment5/code/assignment5_submission.zip
 assignment5/.ipynb_checkpoints
+
+# Project minBERT generated
+project/minbert-default-final-project-main/__pycache__
+project/minbert-default-final-project-main/cs224n_default_final_project_submission.zip

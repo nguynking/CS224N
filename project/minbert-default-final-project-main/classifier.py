@@ -45,8 +45,8 @@ class BertSentimentClassifier(torch.nn.Module):
                 param.requires_grad = True
 
         ### TODO
-        self.proj = nn.Linear(config.hidden_size, self.num_labels)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.proj = torch.nn.Linear(config.hidden_size, self.num_labels)
+        self.dropout = torch.nn.Dropout(config.hidden_dropout_prob)
         # raise NotImplementedError
 
 
